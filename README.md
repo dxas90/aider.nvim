@@ -1,5 +1,3 @@
-> ⚠️ **No longer maintained.** This project is archived and I'm no longer developing it or accepting issues/PRs. Feel free to fork.
-
 # Aider Plugin for Neovim
 
 This is a simple plugin for Neovim that allows you to open a terminal window inside Neovim and run [Aider](https://github.com/paul-gauthier/aider). I wrote it as an experiment in using Aider which is by far the best AI coding assistant I've seen, and now just a few keystrokes away in vim.
@@ -11,26 +9,26 @@ You can install the Aider Plugin for Neovim using various package managers. Here
 Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ```lua
-use 'joshuavial/aider.nvim'
+use 'dxas90/aider.nvim'
 ```
 
 Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
-Plug 'joshuavial/aider.nvim'
+Plug 'dxas90/aider.nvim'
 ```
 
 Using [dein](https://github.com/Shougo/dein.vim)
 
 ```vim
-call dein#add('joshuavial/aider.nvim')
+call dein#add('dxas90/aider.nvim')
 ```
 
 Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
-  "joshuavial/aider.nvim",
+  "dxas90/aider.nvim",
   opts = {
     -- your configuration comes here
     -- if you don't want to use the default settings
@@ -100,16 +98,15 @@ require('aider').setup({
   auto_manage_context = false,
   default_bindings = false,
   debug = true,
-  vim = true, 
   ignore_buffers = {},
   border = {
     style = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }, -- or e.g. "rounded"
     color = "#fab387",
   },
-
-  -- only necessary if you want to change the default keybindings. <Leader>C is not a particularly good choice. It's just shown as an example.
-  vim.api.nvim_set_keymap('n', '<leader>C', ':AiderOpen --no-auto-commits<CR>', {noremap = true, silent = true})
 })
+
+-- only necessary if you want to change the default keybindings. <Leader>C is not a particularly good choice. It's just shown as an example.
+vim.api.nvim_set_keymap('n', '<leader>C', ':AiderOpen --no-auto-commits<CR>', {noremap = true, silent = true})
 ```
 
 In this example, the `setup` function is called with a table that sets `auto_manage_context` to `false` and `default_bindings` to `false`. This means that the plugin will not automatically manage the context and will not use the default keybindings.

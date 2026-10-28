@@ -49,15 +49,6 @@ local function open_window(window_type)
 	end
 end
 
-function NotifyOnExit(code, signal)
-	vim.schedule(function()
-		set_idle_status(true)
-		vim.api.nvim_command('echo ""')
-		vim.cmd("edit")
-		vim.notify("Aider finished with exit code " .. code)
-	end)
-end
-
 
 local function add_buffers_to_command(command, is_valid_buffer)
 	local buffers = vim.api.nvim_list_bufs()
@@ -95,7 +86,6 @@ end
 
 return {
 	open_window = open_window,
-	NotifyOnExit = NotifyOnExit,
 	add_buffers_to_command = add_buffers_to_command,
 	open_buffer_in_new_window = open_buffer_in_new_window,
 	get_git_modified_files = get_git_modified_files,

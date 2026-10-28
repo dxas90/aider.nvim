@@ -6,8 +6,8 @@ M.debug = false
 
 local function is_valid_buffer(bufnr)
   local bufname = vim.api.nvim_buf_get_name(bufnr)
-  local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
-  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
+  local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
 
   -- Ignore special buffers and directories
   if

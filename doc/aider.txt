@@ -1,68 +1,142 @@
-* aider.txt* For aider.nvim plugin *Aider*                      version 0.4.0
+*aider.txt*  For aider.nvim plugin *Aider*                     version 0.7.0
 
-1. |introduction|
-2. |setup|
-3. |keybindings|
-4. |functions|
-
-==============================================================================
-*introduction*
-
-Aider is a simple plugin for Neovim that allows you to open a terminal window inside Neovim and run the Aider command.
-
-You will need the aider cli installed for it to work - https://github.com/paul-gauthier/aider
+1. |aider-introduction|
+2. |aider-setup|
+3. |aider-keybindings|
+4. |aider-commands|
+5. |aider-functions|
 
 ==============================================================================
-*setup*
+*aider-introduction*
 
-The plugin provides a `setup` function that you can use to configure the plugin. This function accepts a table with the following keys:
+aider.nvim is a Neovim plugin that opens a terminal window inside Neovim and
+runs Aider (https://github.com/paul-gauthier/aider), the AI pair programming
+tool. Buffers are automatically added to and removed from the Aider context as
+you open and close files.
 
-- `auto_manage_context`: A boolean value that determines whether the plugin should automatically manage the context. If set to `true`, the plugin will automatically add and remove buffers from the context as they are opened and closed. Defaults to `true`.
-- `default_bindings`: A boolean value that determines whether the plugin should use the default keybindings. If set to `true`, the plugin will require the keybindings file and set the default keybindings. Defaults to `true`.
-- `ignore_buffers`: A list of matching patterns for buffer names that will be ignored. Defaults to `{'^term:', 'NeogitConsole', 'NvimTree_', 'neo-tree filesystem'}`.
-
-Here is an example of how to use the `setup` function:
-
-```lua
-require('aider').setup({
-  auto_manage_context = false,
-  default_bindings = false,
-  debug = false,
-  ignore_buffers = {},
-})
-```
-
-In this example, the `setup` function is called with a table that sets `auto_manage_context` to `false` and `default_bindings` to `false`. This means that the plugin will not automatically manage the context and will not use the default keybindings.
+You will need the aider CLI installed: https://github.com/paul-gauthier/aider
 
 ==============================================================================
-*keybindings*
+*aider-setup*
 
-The plugin provides the following default keybindings:
+The plugin exposes a `setup` function. Call it in your Neovim config:
 
-- `<leader>Ao` to open a terminal window with the Aider defaults (gpt-4).
-- `<leader>Am` to add all git-modified files to the Aider chat.
-- `<leader><space>` to open Aider (Deprecated - will be removed in a future version)
+  require('aider').setup(opts)
 
-They can be disabled by setting the `default_bindings` option to `false` in the setup config.
+`opts` is a table with the following keys (all optional):
+
+  auto_manage_context  boolean  Automatically add/remove buffers from the
+                                Aider context as they are opened and closed.
+                                Default: true
+
+  default_bindings     boolean  Register the default <leader>A keybindings.
+                                Default: true
+
+  debug                boolean  Print debug messages to help troubleshoot.
+                                Default: false
+
+  ignore_buffers       table    List of Lua pattern strings. Buffers whose
+                                name matches any pattern are excluded from the
+                                Aider context.
+                                Default: {'^term://', 'NeogitConsole',
+                                         'NvimTree_', 'neo-tree filesystem'}
+
+  border               table    Style the floating window border (only applies
+                                when using the 'editor' window type).
+                                Keys:
+                                  style  string|table  Border style. Accepts
+                                         any value accepted by nvim_open_win().
+                                         E.g. "rounded" or a character table.
+                                  color  string        Hex colour for the
+                                         border highlight, e.g. "#fab387".
+                                Default: nil (no border)
+
+Minimal example (lazy.nvim): >
+
+  {
+    "dxas90/aider.nvim",
+    opts = {
+      auto_manage_context = true,
+      default_bindings = true,
+      debug = false,
+    },
+  }
+
+Full example: >
+
+  require('aider').setup({
+    auto_manage_context = false,
+    default_bindings = false,
+    debug = true,
+    ignore_buffers = { '^term://', 'NeogitConsole' },
+    border = {
+      style = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+      color = "#fab387",
+    },
+  })
+
+  -- Custom keybinding (only needed when default_bindings = false)
+  vim.keymap.set('n', '<leader>Ao', ':AiderOpen<CR>', { noremap = true, silent = true })
+<
 
 ==============================================================================
-*functions*
+*aider-keybindings*
 
-The plugin provides the `OpenAider` function.
+Default keybindings (set with which-key when available, plain keymap otherwise):
 
-The `OpenAider` function can be called to open a terminal window with the Aider command. The `OpenAider` function accepts the following arguments:
+  <leader>Ao   Open Aider terminal window.
+  <leader>Am   Add all git-modified files to the Aider chat.
 
-- `command`: The full aider command to use - defaults to `aider`
-- `window`: The window style to use 'vsplit' (default), 'hsplit' or 'float'
+  <leader><space>   Open Aider (DEPRECATED — will be removed in a future
+                    version; use <leader>Ao instead).
 
-Here are some examples of how to use the `AiderOpen` function:
+Disable all default bindings by setting `default_bindings = false` in setup.
 
-```vim
-:lua require('aider').AiderOpen() 
-:lua require('aider').AiderOpen("", "float") 
-:lua require('aider').AiderOpen("-3 --no-git" )
-```
+==============================================================================
+*aider-commands*
 
-NOTE: if an Aider job is already running calling AiderOpen will reattach to it, even if it is called with different flags
+:AiderOpen [args] [window_type]~
 
+  Opens a terminal window running aider.
 
+  args         Optional CLI flags to pass to aider (default: "").
+  window_type  One of 'vsplit' (default), 'hsplit', or 'editor'.
+               'editor' opens a floating window centred in the editor.
+
+  If an Aider job is already running, AiderOpen re-attaches to it regardless
+  of the arguments supplied.
+
+  Examples: >
+    :AiderOpen
+    :AiderOpen -3 hsplit
+    :AiderOpen --no-auto-commits editor
+<
+
+:AiderAddModifiedFiles~
+
+  Adds all git-modified and untracked (unstaged) files to the Aider chat via
+  /add. If Aider is not open it is started first.
+
+==============================================================================
+*aider-functions*
+
+All functions live in the `aider` module.
+
+require('aider').AiderOpen([args [, window_type]])~
+
+  Programmatic version of |:AiderOpen|.
+
+  Examples: >
+    :lua require('aider').AiderOpen()
+    :lua require('aider').AiderOpen("", "editor")
+    :lua require('aider').AiderOpen("--no-auto-commits", "hsplit")
+<
+
+require('aider').AiderAddModifiedFiles()~
+
+  Programmatic version of |:AiderAddModifiedFiles|.
+
+NOTE: If an Aider job is already running, AiderOpen will re-attach to it even
+if called with different flags.
+
+vim:ft=help:tw=78:
